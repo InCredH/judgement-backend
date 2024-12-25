@@ -19,7 +19,7 @@ public class Player {
     private String name;
 
     @ElementCollection
-    private List<String> hand; // Store card details as a list of strings
+    private List<Card> hand; // Store card details as a list of strings
 
     private int score;
     private int wins;
