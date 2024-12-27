@@ -17,8 +17,9 @@ public class PlayerService {
     @Autowired
     private RoomRepository roomRepository;
 
-    public Player createPlayer(String playerName) {
-        Player player = new Player(playerName);
+    public Player createPlayer(String username) {
+        Player player = new Player();
+        player.setUsername(username);
         playerRepository.save(player);
         return player;
     }

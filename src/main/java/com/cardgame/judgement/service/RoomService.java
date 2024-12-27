@@ -34,7 +34,7 @@ public class RoomService {
         Room room = new Room();
         // generate a random roomId which contains 6 characters (alphabets and numbers)
         String roomId =  getSaltString();
-        room.setRoomId(roomId);
+        room.setRoomCode(roomId);
         int capacity = 4; // default capacity is 4
         room.setCapacity(capacity);
         int totalRounds = 5; // default total rounds is 5

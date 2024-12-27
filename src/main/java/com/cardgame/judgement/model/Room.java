@@ -25,10 +25,12 @@ public class Room {
     // 0 --> initial stage, 1 --> in progress, -1 --> game ended
     private int status;
 
+    // One-to-many relationship with Round
     @JsonManagedReference
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
 
+    // One-to-many relationship with Player
     @JsonManagedReference
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
