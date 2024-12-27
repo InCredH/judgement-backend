@@ -50,7 +50,7 @@ public class RoomService {
     }
 
     public Room getRoomByRoomId(String roomId) {
-        return roomRepository.findByRoomId(roomId).orElseThrow(() -> new RuntimeException("Room not found"));
+        return roomRepository.findByRoomCode(roomId).orElseThrow(() -> new RuntimeException("Room not found"));
     }
 
     public List<Player> getPlayersInRoom(String roomId) {
