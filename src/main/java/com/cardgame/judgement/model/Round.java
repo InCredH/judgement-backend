@@ -1,21 +1,27 @@
 package com.cardgame.judgement.model;
 
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Round {
-    private final int roundNumber;
-    private final String trumpSuit;
-    private List<Card> cardsPlayed;
 
-    public Round(int roundNumber, String trumpSuit) {
-        this.roundNumber = roundNumber;
-        this.trumpSuit = trumpSuit;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long roundId;
 
-    public void setCardsPlayed(List<Card> cardsPlayed) {
-        this.cardsPlayed = cardsPlayed;
-    }
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
+
+    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
+    private List<PlayerRound> playerRounds;
 }
