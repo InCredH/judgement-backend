@@ -17,7 +17,7 @@ public class PlayerController {
     // Endpoint to create a new player
     @PostMapping("/create")
     public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
-        Player playerResponse = playerService.createPlayer(player.getName());
+        Player playerResponse = playerService.createPlayer(player.getUsername());
         return ResponseEntity.ok(playerResponse);
     }
 

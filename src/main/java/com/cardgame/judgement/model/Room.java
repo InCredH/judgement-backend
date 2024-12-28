@@ -2,30 +2,36 @@ package com.cardgame.judgement.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long roomId;
 
-    private String roomId;  // unique code shared with player
+    private String roomCode;
+
     private int capacity;
+
     private int totalRounds;
 
+    // 0 --> initial stage, 1 --> in progress, -1 --> game ended
+    private int status;
+
+    // One-to-many relationship with Round
     @JsonManagedReference
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Round> rounds;
+
+    // One-to-many relationship with Player
+    @JsonManagedReference
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
-
-    // No-argument constructor required by Hibernate
-    public Room() {
-    }
-
 }

@@ -26,14 +26,14 @@ public class GameService {
     }
 
     public void startNewRound(String roomId, int roundNumber, Round round) {
-        notifyPlayers(roomId, "ROUND_START", "System", "Round " + roundNumber + " started. Trump Suit: " + round.getTrumpSuit());
+        notifyPlayers(roomId, "ROUND_START", "System", "Round " + roundNumber + " started. Trump Suit: " + round.getTrumpSuite());
     }
 
     public void playerPlayedCard(String roomId, Player player, String cardInfo) {
-        notifyPlayers(roomId, "CARD_PLAYED", player.getName(), cardInfo);
+        notifyPlayers(roomId, "CARD_PLAYED", player.getUsername(), cardInfo);
     }
 
     public void announceWinner(String roomId, Player winner) {
-        notifyPlayers(roomId, "ROUND_WINNER", "System", "Winner: " + winner.getName());
+        notifyPlayers(roomId, "ROUND_WINNER", "System", "Winner: " + winner.getUsername());
     }
 }
