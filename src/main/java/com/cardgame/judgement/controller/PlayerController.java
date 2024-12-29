@@ -1,5 +1,6 @@
 package com.cardgame.judgement.controller;
 
+import com.cardgame.judgement.dto.CreatePlayerDTO;
 import com.cardgame.judgement.dto.PlayerJoinRoomDTO;
 import com.cardgame.judgement.model.Player;
 import com.cardgame.judgement.service.PlayerService;
@@ -16,15 +17,15 @@ public class PlayerController {
 
     // Endpoint to create a new player
     @PostMapping("/create")
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
-        Player playerResponse = playerService.createPlayer(player.getUsername());
+    public ResponseEntity<Player> createPlayer(@RequestBody CreatePlayerDTO createPlayerDTO) {
+        Player playerResponse = playerService.createPlayer(createPlayerDTO.getUsername());
         return ResponseEntity.ok(playerResponse);
     }
 
     // Endpoint to add a player to a room
     @PostMapping("/join")
     public ResponseEntity<Player> joinRoom(@RequestBody PlayerJoinRoomDTO playerJoinRoomDTO) {
-        Player player = playerService.joinRoom(playerJoinRoomDTO.getPlayerName(), playerJoinRoomDTO.getRoomId());
+        Player player = playerService.joinRoom(playerJoinRoomDTO.getPlayerUsername(), playerJoinRoomDTO.getRoomCode());
         return ResponseEntity.ok(player);
     }
 
