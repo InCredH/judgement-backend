@@ -46,6 +46,6 @@ public class Player {
     // Many-to-one relationship with Room
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id", nullable = true) // nullable is true here in order to create a player who has not yet joined a room
     private Room room;
 }
