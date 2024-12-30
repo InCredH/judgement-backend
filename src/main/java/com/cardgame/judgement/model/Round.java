@@ -35,6 +35,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -47,6 +48,8 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roundId;
 
+    private HashMap<String,Integer> cardsPlayed;
+
     // Many-to-one relationship with Room
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
@@ -55,6 +58,8 @@ public class Round {
     private String trumpSuite;
 
     private int roundNumber;
+
+    private int dealerIndex;
 
     // One-to-many relationship with PlayerRound
     @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true)
