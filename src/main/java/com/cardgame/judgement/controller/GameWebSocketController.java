@@ -8,7 +8,6 @@ import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoomRepository;
 import com.cardgame.judgement.repository.RoundRepository;
 import com.cardgame.judgement.service.PlayerRoundService;
-import com.cardgame.judgement.service.RoomService;
 import com.cardgame.judgement.service.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -131,7 +130,7 @@ public class GameWebSocketController {
 
             // decide trump suite (set the trumpSuite field in Round table)
             int trumpSuite = generateRandomTrumpSuite();
-            Round round = roundRepository.findByRoundNumberAndRoomCode(roundNum, message.getRoomCode());
+            Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
             round.setTrumpSuite(trumpSuite);
 
             // if no records in Round table exists for current roomCode, set the dealerIndex to 0
@@ -139,7 +138,7 @@ public class GameWebSocketController {
             // get the lastDealerIndex from the last record in Round table
             int dealerIndex = 0;
             if(roundNum > 1) {
-                Round lastRound = roundRepository.findByRoundNumberAndRoomCode(roundNum - 1, message.getRoomCode());
+                Round lastRound = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum - 1, message.getRoomCode());
                 dealerIndex = (lastRound.getDealerIndex() + 1) % playerList.size();
             }
 
@@ -168,7 +167,7 @@ public class GameWebSocketController {
                 predictionCount = 0;
                 List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
                 int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
-                Round round = roundRepository.findByRoundNumberAndRoomCode(roundNum, message.getRoomCode());
+                Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
                 int dealerIndex = round.getDealerIndex();
 
                 message.setType("PLAY_CARD");
@@ -184,12 +183,12 @@ public class GameWebSocketController {
         else if (message.getType().equals("CARD_PLAYED")) {
             // remove the card played by the player from PlayerRound.cards
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
-            PlayerRound playerRound = playerRoundRepository.findByUsernameAndRoundId(message.getSenderUsername(), roundRepository.findByRoundNumberAndRoomCode(roundNum, message.getRoomCode()).getRoundId());
+            PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(message.getSenderUsername(), roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode()).getRoundId());
             playerRound.getCards().remove(message.getCard());
             playerRoundRepository.save(playerRound);
 
             // insert the card played by the player into Round.cardsPlayed
-            Round round = roundRepository.findByRoundNumberAndRoomCode(roundNum, message.getRoomCode());
+            Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
             round.getCardsPlayed().put(message.getSenderUsername(), message.getCard());
             roundRepository.save(round);
 
@@ -201,7 +200,7 @@ public class GameWebSocketController {
             int trumpSuite = round.getTrumpSuite();
             if(round.getCardsPlayed().size() == playerList.size()) {
                 String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
-                PlayerRound subRoundWinner = playerRoundRepository.findByUsernameAndRoundId(subRoundWinnerUsername, round.getRoundId());
+                PlayerRound subRoundWinner = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(subRoundWinnerUsername, round.getRoundId());
                 subRoundWinner.setHandCount(subRoundWinner.getHandCount() + 1);
                 playerRoundRepository.save(subRoundWinner);
 
@@ -228,7 +227,7 @@ public class GameWebSocketController {
 
             // iterate through each player
             for(String username : playerList) {
-                PlayerRound playerRound = playerRoundRepository.findByUsernameAndRoundId(username, roundRepository.findByRoundNumberAndRoomCode(roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getRoomCode()).getRoundId());
+                PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(username, roundRepository.findByRoundNumberAndRoom_RoomCode(roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getRoomCode()).getRoundId());
                 int prediction = playerRound.getPrediction();
                 int handCount = playerRound.getHandCount();
                 int score = 0;
@@ -254,11 +253,11 @@ public class GameWebSocketController {
         }
         else if (message.getType().equals("GAME_RESTARTED")) {
             // clear all records in PlayerRound table for the current roomCode
-            Round round = roundRepository.findByRoundNumberAndRoomCode(roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getRoomCode());
-            playerRoundRepository.deleteAllByRoundId(round.getRoundId());
+            Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getRoomCode());
+            playerRoundRepository.deleteAllByRound_RoundId(round.getRoundId());
 
             // clear all records in Round table for the current roomCode
-            roundRepository.deleteAllByRoomCode(message.getRoomCode());
+            roundRepository.deleteAllByRoom_RoomCode(message.getRoomCode());
 
             // return a message with type "ROUND_STARTED"
             message.setType("ROUND_STARTED");
