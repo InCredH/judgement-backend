@@ -22,8 +22,8 @@ public class Room {
 
     private int totalRounds;
 
-    // 0 --> initial stage, 1 --> in progress, -1 --> game ended
-    private int status;
+    // 0 --> game starting, 1 --> in progress, -1 --> game ended
+    private int status;   // by default 0
 
     // One-to-many relationship with Round
     @JsonManagedReference

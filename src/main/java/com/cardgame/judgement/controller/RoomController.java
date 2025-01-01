@@ -33,7 +33,7 @@ public class RoomController {
     // Endpoint to get room details by roomId
     @GetMapping("/{roomId}")
     public ResponseEntity<Room> getRoomById(@PathVariable String roomId) {
-        Room room = roomService.getRoomByRoomId(roomId);
+        Room room = roomService.getRoomByRoomCode(roomId);
         return ResponseEntity.ok(room);
     }
 

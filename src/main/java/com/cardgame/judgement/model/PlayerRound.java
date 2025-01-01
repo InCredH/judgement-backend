@@ -33,9 +33,5 @@ public class PlayerRound {
 
     private int handCount;
 
-    // Using @ElementCollection for storing the player's cards
-    @ElementCollection
-    @CollectionTable(name = "player_cards", joinColumns = @JoinColumn(name = "player_round_id"))
-    @Column(name = "card")
     private List<Integer> cards;
 }
