@@ -1,13 +1,11 @@
 package com.cardgame.judgement.controller;
 
-import com.cardgame.judgement.model.GameMessage;
-import com.cardgame.judgement.model.PlayerRound;
-import com.cardgame.judgement.model.Room;
-import com.cardgame.judgement.model.Round;
+import com.cardgame.judgement.model.*;
 import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoomRepository;
 import com.cardgame.judgement.repository.RoundRepository;
 import com.cardgame.judgement.service.PlayerRoundService;
+import com.cardgame.judgement.service.RoomService;
 import com.cardgame.judgement.service.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -27,6 +25,9 @@ public class GameWebSocketController {
 
     @Autowired
     private RoomRepository roomRepository;
+
+    @Autowired
+    private RoomService roomService;
 
     @Autowired
     private PlayerRoundRepository playerRoundRepository;
@@ -118,13 +119,13 @@ public class GameWebSocketController {
             }
 
             // distribute cards to players (set the cards field in PlayerRound table)
-            List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
+            List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
 
             Room room = roomRepository.findByRoomCode(message.getRoomCode()).orElseThrow(() -> new RuntimeException("Room not found"));
 
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
 
-            int numCardsToDeal = room.getCapacity() - roundNum + 1;
+            int numCardsToDeal = room.getTotalRounds() - roundNum + 1;
 
             distributeCards(playerList, roundNum, numCardsToDeal);
 
@@ -165,7 +166,7 @@ public class GameWebSocketController {
             // else return a message with type "MAKE_PREDICTION" and set the usernameToEnterPrediction = playerList.get(indexof(usernameToEnterPrediction) + 1 % playerList.size())
             if(predictionCount == roomRepository.findByRoomCode(message.getRoomCode()).orElseThrow(() -> new RuntimeException("Room not found")).getCapacity()) {
                 predictionCount = 0;
-                List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
+                List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
                 int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
                 Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
                 int dealerIndex = round.getDealerIndex();
@@ -173,7 +174,7 @@ public class GameWebSocketController {
                 message.setType("PLAY_CARD");
                 message.setUsernameToPlayCard(playerList.get((dealerIndex + 1) % playerList.size()));
             } else {
-                List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
+                List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
                 int indexOfUsernameToEnterPrediction = playerList.indexOf(message.getUsernameToEnterPrediction());
 
                 message.setType("MAKE_PREDICTION");
@@ -196,7 +197,7 @@ public class GameWebSocketController {
             // check who won the sub round and increment handCount of the player who won and clear Round.cardsPlayed and set usernameToPlayCard = winner of the sub round
                 // if playerRound[0].cards.size() == 0, return a message with type "ROUND_ENDED"
             // else return a message with type "PLAY_CARD" and set the usernameToPlayCard = playerList.get(indexOf(usernameToPlayCard) + 1 % playerList.size())
-            List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
+            List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
             int trumpSuite = round.getTrumpSuite();
             if(round.getCardsPlayed().size() == playerList.size()) {
                 String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
@@ -223,7 +224,7 @@ public class GameWebSocketController {
             roomRepository.save(room);
 
             // calculate scores of each player using handCount and prediction fields in PlayerRound table
-            List<String> playerList = roomRepository.findUsernamesByRoomCode(message.getRoomCode());
+            List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
 
             // iterate through each player
             for(String username : playerList) {
@@ -261,6 +262,9 @@ public class GameWebSocketController {
 
             // return a message with type "ROUND_STARTED"
             message.setType("ROUND_STARTED");
+        }
+        else {
+            message.setType("INVALID_MESSAGE");
         }
 
         return message;

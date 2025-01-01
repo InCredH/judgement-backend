@@ -1,5 +1,7 @@
 package com.cardgame.judgement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +27,7 @@ public class PlayerRound {
     // Many-to-one relationship with Round (re-enabled)
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = false)
+    @JsonBackReference
     private Round round;
 
     private int prediction;
@@ -33,5 +36,6 @@ public class PlayerRound {
 
     private int handCount;
 
+    @ElementCollection
     private List<Integer> cards;
 }

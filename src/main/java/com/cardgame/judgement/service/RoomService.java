@@ -4,6 +4,7 @@ import com.cardgame.judgement.model.Room;
 import com.cardgame.judgement.model.Player;
 import com.cardgame.judgement.repository.RoomRepository;
 import com.cardgame.judgement.repository.PlayerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,8 +54,14 @@ public class RoomService {
         return roomRepository.findByRoomCode(roomCode).orElseThrow(() -> new RuntimeException("Room not found"));
     }
 
-    public List<Player> getPlayersInRoom(String roomId) {
-        Room room = getRoomByRoomCode(roomId);
+    public List<Player> getPlayersInRoom(String roomCode) {
+        Room room = getRoomByRoomCode(roomCode);
         return room.getPlayers();
+    }
+
+    @Transactional
+    public List<String> getAllPlayerUsernames(String roomCode) {
+        Room room = getRoomByRoomCode(roomCode);
+        return room.getPlayers().stream().map(Player::getUsername).toList();
     }
 }

@@ -27,11 +27,13 @@ public class Room {
 
     // One-to-many relationship with Round
     @JsonManagedReference
+    @ElementCollection
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
 
     // One-to-many relationship with Player
     @JsonManagedReference
+    @ElementCollection
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
 }
