@@ -30,6 +30,7 @@
 //}
 package com.cardgame.judgement.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -67,6 +68,8 @@ public class Round {
     private int currentPredictionSum; // this should be by default 0
 
     // One-to-many relationship with PlayerRound
+    @ElementCollection
+    @JsonManagedReference
     @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerRound> playerRounds;
 }

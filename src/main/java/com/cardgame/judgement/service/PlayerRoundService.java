@@ -6,6 +6,7 @@ import com.cardgame.judgement.model.Round;
 import com.cardgame.judgement.repository.PlayerRepository;
 import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoundRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class PlayerRoundService {
     private RoundRepository roundRepository;
 
     // create playerRound entry with cards
+    @Transactional
     public void createPlayerRound(String username, int roundNum, List<Integer>cards) {
         // create a new entry in PlayerRound table with the playerId, roomCode and cards
         Player player = playerRepository.findByUsername(username);

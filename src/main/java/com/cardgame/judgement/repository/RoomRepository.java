@@ -8,7 +8,4 @@ import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByRoomCode(String roomId);
-
-    // get usernames of all players in the room
-    List<String> findUsernamesByRoomCode(String roomCode);
 }
