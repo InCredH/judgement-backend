@@ -62,6 +62,6 @@ public class RoomService {
     @Transactional
     public List<String> getAllPlayerUsernames(String roomCode) {
         Room room = getRoomByRoomCode(roomCode);
-        return room.getPlayers().stream().map(Player::getUsername).toList();
+        return room.getPlayers().stream().map(Player::getUsername).sorted().toList();
     }
 }

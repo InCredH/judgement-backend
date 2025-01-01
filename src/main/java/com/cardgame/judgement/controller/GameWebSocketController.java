@@ -153,14 +153,13 @@ public class GameWebSocketController {
             // return a message with type "MAKE_PREDICTION" and set the usernameToEnterPrediction = playerList.get(dealerIndex + 1 % playerList.size())
             message.setType("MAKE_PREDICTION");
             message.setUsernameToEnterPrediction(playerList.get(dealerIndex));
+            message.setSenderUsername(null);
         }
         else if(message.getType().equals("PREDICTION_MADE")) {
             predictionCount++;
 
-            // create a new entry in PlayerRound table with the prediction made by the player
-            PlayerRound playerRound = new PlayerRound();
-            playerRound.setPrediction(message.getPrediction());
-            playerRoundRepository.save(playerRound);
+            // update the prediction field in PlayerRound table for the player
+            playerRoundService.updatePrediction(message.getSenderUsername(), roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getPrediction());
 
             // if all players have made their predictions, return a message with type "PLAY_CARD" and set the usernameToPlayCard = playerList.get(dealerIndex+1 % playerList.size())
             // else return a message with type "MAKE_PREDICTION" and set the usernameToEnterPrediction = playerList.get(indexof(usernameToEnterPrediction) + 1 % playerList.size())
@@ -172,13 +171,17 @@ public class GameWebSocketController {
                 int dealerIndex = round.getDealerIndex();
 
                 message.setType("PLAY_CARD");
+                message.setSenderUsername(null);
                 message.setUsernameToPlayCard(playerList.get((dealerIndex + 1) % playerList.size()));
             } else {
                 List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
-                int indexOfUsernameToEnterPrediction = playerList.indexOf(message.getUsernameToEnterPrediction());
+                int indexOfUsernamePredictionMade = playerList.indexOf(message.getSenderUsername());
+
+                System.out.println("indexOfUsernamePredictionMade: " + indexOfUsernamePredictionMade);
 
                 message.setType("MAKE_PREDICTION");
-                message.setUsernameToEnterPrediction(playerList.get((indexOfUsernameToEnterPrediction + 1) % playerList.size()));
+                message.setSenderUsername(null);
+                message.setUsernameToEnterPrediction(playerList.get((indexOfUsernamePredictionMade + 1) % playerList.size()));
             }
         }
         else if (message.getType().equals("CARD_PLAYED")) {

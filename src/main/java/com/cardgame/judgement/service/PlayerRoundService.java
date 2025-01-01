@@ -36,4 +36,14 @@ public class PlayerRoundService {
 
         playerRoundRepository.save(playerRound);
     }
+
+    public void updatePrediction(String username, int roundNum, int prediction) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        playerRound.setPrediction(prediction);
+
+        playerRoundRepository.save(playerRound);
+    }
 }
