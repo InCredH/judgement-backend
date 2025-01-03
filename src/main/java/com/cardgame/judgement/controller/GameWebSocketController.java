@@ -190,6 +190,7 @@ public class GameWebSocketController {
 //            PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(message.getSenderUsername(), roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode()).getRoundId());
 //            playerRound.getCards().remove(message.getCard());
 //            playerRoundRepository.save(playerRound);
+
             List<Integer> playerCards = playerRoundService.getPlayerCards(message.getSenderUsername(), roundNum);
             playerCards.remove(Integer.valueOf(message.getCard()));
             playerRoundService.updateCards(message.getSenderUsername(), roundNum, playerCards);
@@ -209,8 +210,8 @@ public class GameWebSocketController {
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
             Round round = roundService.getRoundByRoundNumber(message.getRoomCode(), roundNum);
             int trumpSuite = round.getTrumpSuite();
+            String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
             if(round.getCardsPlayed().size() == playerList.size()) {
-                String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
                 int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername, roundNum);
 //                PlayerRound subRoundWinner = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(subRoundWinnerUsername, round.getRoundId());
 //                subRoundWinner.setHandCount(subRoundWinner.getHandCount() + 1);
@@ -225,14 +226,14 @@ public class GameWebSocketController {
                 if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername, roundNum) == 0) {
                     message.setType("ROUND_ENDED");
                 } else {
-                    int indexOfUsernameToPlayCard = playerList.indexOf(message.getUsernameToPlayCard());
                     message.setType("PLAY_CARD");
-                    message.setUsernameToPlayCard(playerList.get((indexOfUsernameToPlayCard + 1) % playerList.size()));
+                    message.setSenderUsername(null);
+                    message.setUsernameToPlayCard(subRoundWinnerUsername);
                 }
             } else {
-                int indexOfUsernameToPlayCard = playerList.indexOf(message.getUsernameToPlayCard());
                 message.setType("PLAY_CARD");
-                message.setUsernameToPlayCard(playerList.get((indexOfUsernameToPlayCard + 1) % playerList.size()));
+                message.setSenderUsername(null);
+                message.setUsernameToPlayCard(subRoundWinnerUsername);
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {

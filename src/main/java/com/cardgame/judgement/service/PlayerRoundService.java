@@ -7,6 +7,7 @@ import com.cardgame.judgement.repository.PlayerRepository;
 import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoundRepository;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,7 @@ public class PlayerRoundService {
         Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
 
         PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
         playerRound.setCards(cards);
 
         playerRoundRepository.save(playerRound);
@@ -64,6 +66,7 @@ public class PlayerRoundService {
         Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
 
         PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
         return playerRound.getCards();
     }
 
@@ -73,6 +76,7 @@ public class PlayerRoundService {
         Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
 
         PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
         return playerRound.getCards().size();
     }
 
