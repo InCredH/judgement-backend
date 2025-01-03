@@ -227,7 +227,7 @@ public class GameWebSocketController {
                     // add the player index to the winner of the previous round
                     int indexOfUsernameToPlayCard = playerList.indexOf(message.getUsernameToPlayCard());
                     message.setType("PLAY_CARD");
-                    message.setUsernameToPlayCard(subRoundWinner.getPlayer().getUsername());
+                    message.setUsernameToPlayCard(subRoundWinnerUsername);
                 }
             }
         }
