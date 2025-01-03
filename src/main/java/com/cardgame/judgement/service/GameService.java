@@ -100,7 +100,7 @@ public class GameService {
         }
     }
 
-    public GameMessage gameMessageHandker(GameMessage message){
+    public GameMessage gameMessageHandler(GameMessage message){
 
         if (message.getType().equals("ROUND_STARTED")) {
             // if no records in Round table exists for current roomCode, create a new record with roundNumber = 1
