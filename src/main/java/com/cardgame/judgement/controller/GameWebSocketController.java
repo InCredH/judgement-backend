@@ -187,18 +187,12 @@ public class GameWebSocketController {
         else if (message.getType().equals("CARD_PLAYED")) {
             // remove the card played by the player from PlayerRound.cards
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
-//            PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(message.getSenderUsername(), roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode()).getRoundId());
-//            playerRound.getCards().remove(message.getCard());
-//            playerRoundRepository.save(playerRound);
 
             List<Integer> playerCards = playerRoundService.getPlayerCards(message.getSenderUsername(), roundNum);
             playerCards.remove(Integer.valueOf(message.getCard()));
             playerRoundService.updateCards(message.getSenderUsername(), roundNum, playerCards);
 
             // insert the card played by the player into Round.cardsPlayed
-//            Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
-//            round.getCardsPlayed().put(message.getSenderUsername(), message.getCard());
-//            roundRepository.save(round);
             LinkedHashMap<String, Integer> cardsPlayed = roundService.getCardsPlayedInRound(message.getRoomCode(), roundNum);
             cardsPlayed.put(message.getSenderUsername(), message.getCard());
             roundService.updateCardsPlayedInRound(message.getRoomCode(), roundNum, cardsPlayed);
@@ -213,14 +207,9 @@ public class GameWebSocketController {
             String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
             if(round.getCardsPlayed().size() == playerList.size()) {
                 int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername, roundNum);
-//                PlayerRound subRoundWinner = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(subRoundWinnerUsername, round.getRoundId());
-//                subRoundWinner.setHandCount(subRoundWinner.getHandCount() + 1);
-//                playerRoundRepository.save(subRoundWinner);
 
                 playerRoundService.updateHandCount(subRoundWinnerUsername, roundNum, handCountOfSubRoundWinner + 1);
 
-//                round.getCardsPlayed().clear();
-//                roundRepository.save(round);
                 roundService.clearCardsPlayedInRound(message.getRoomCode(), roundNum);
 
                 if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername, roundNum) == 0) {
