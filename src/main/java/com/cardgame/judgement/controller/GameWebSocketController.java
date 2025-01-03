@@ -187,37 +187,42 @@ public class GameWebSocketController {
         else if (message.getType().equals("CARD_PLAYED")) {
             // remove the card played by the player from PlayerRound.cards
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
-            PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(message.getSenderUsername(), roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode()).getRoundId());
-            playerRound.getCards().remove(message.getCard());
-            playerRoundRepository.save(playerRound);
+
+            List<Integer> playerCards = playerRoundService.getPlayerCards(message.getSenderUsername(), roundNum);
+            playerCards.remove(Integer.valueOf(message.getCard()));
+            playerRoundService.updateCards(message.getSenderUsername(), roundNum, playerCards);
 
             // insert the card played by the player into Round.cardsPlayed
-            Round round = roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, message.getRoomCode());
-            round.getCardsPlayed().put(message.getSenderUsername(), message.getCard());
-            roundRepository.save(round);
+            LinkedHashMap<String, Integer> cardsPlayed = roundService.getCardsPlayedInRound(message.getRoomCode(), roundNum);
+            cardsPlayed.put(message.getSenderUsername(), message.getCard());
+            roundService.updateCardsPlayedInRound(message.getRoomCode(), roundNum, cardsPlayed);
 
             // if Round.cardsPlayed.size() == playerList.size()
             // check who won the sub round and increment handCount of the player who won and clear Round.cardsPlayed and set usernameToPlayCard = winner of the sub round
                 // if playerRound[0].cards.size() == 0, return a message with type "ROUND_ENDED"
             // else return a message with type "PLAY_CARD" and set the usernameToPlayCard = playerList.get(indexOf(usernameToPlayCard) + 1 % playerList.size())
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
+            Round round = roundService.getRoundByRoundNumber(message.getRoomCode(), roundNum);
             int trumpSuite = round.getTrumpSuite();
+            String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
             if(round.getCardsPlayed().size() == playerList.size()) {
-                String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
-                PlayerRound subRoundWinner = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(subRoundWinnerUsername, round.getRoundId());
-                subRoundWinner.setHandCount(subRoundWinner.getHandCount() + 1);
-                playerRoundRepository.save(subRoundWinner);
+                int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername, roundNum);
 
-                round.getCardsPlayed().clear();
-                roundRepository.save(round);
+                playerRoundService.updateHandCount(subRoundWinnerUsername, roundNum, handCountOfSubRoundWinner + 1);
 
-                if(playerRound.getCards().isEmpty()) {
+                roundService.clearCardsPlayedInRound(message.getRoomCode(), roundNum);
+
+                if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername, roundNum) == 0) {
                     message.setType("ROUND_ENDED");
                 } else {
-                    int indexOfUsernameToPlayCard = playerList.indexOf(message.getUsernameToPlayCard());
                     message.setType("PLAY_CARD");
-                    message.setUsernameToPlayCard(playerList.get((indexOfUsernameToPlayCard + 1) % playerList.size()));
+                    message.setSenderUsername(null);
+                    message.setUsernameToPlayCard(subRoundWinnerUsername);
                 }
+            } else {
+                message.setType("PLAY_CARD");
+                message.setSenderUsername(null);
+                message.setUsernameToPlayCard(subRoundWinnerUsername);
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {

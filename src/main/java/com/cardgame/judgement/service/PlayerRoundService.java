@@ -7,6 +7,7 @@ import com.cardgame.judgement.repository.PlayerRepository;
 import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoundRepository;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,56 @@ public class PlayerRoundService {
 
         PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
         playerRound.setPrediction(prediction);
+
+        playerRoundRepository.save(playerRound);
+    }
+
+    @Transactional
+    public void updateCards(String username, int roundNum, List<Integer> cards) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
+        playerRound.setCards(cards);
+
+        playerRoundRepository.save(playerRound);
+    }
+
+    @Transactional
+    public List<Integer> getPlayerCards(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
+        return playerRound.getCards();
+    }
+
+    @Transactional
+    public int getCountOfPlayerCards(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        Hibernate.initialize(playerRound.getCards()); // this is done to avoid LazyInitializationException
+        return playerRound.getCards().size();
+    }
+
+    public int getHandCountOfPlayer(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        return playerRound.getHandCount();
+    }
+
+    public void updateHandCount(String username, int roundNum, int handCount) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        playerRound.setHandCount(handCount);
 
         playerRoundRepository.save(playerRound);
     }
