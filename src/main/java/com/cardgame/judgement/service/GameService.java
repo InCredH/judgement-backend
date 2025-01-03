@@ -8,9 +8,11 @@ import com.cardgame.judgement.repository.PlayerRoundRepository;
 import com.cardgame.judgement.repository.RoomRepository;
 import com.cardgame.judgement.repository.RoundRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service
 public class GameService {
     @Autowired
     private RoundRepository roundRepository;
