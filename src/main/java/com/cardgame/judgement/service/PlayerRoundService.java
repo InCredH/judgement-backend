@@ -46,4 +46,51 @@ public class PlayerRoundService {
 
         playerRoundRepository.save(playerRound);
     }
+
+    @Transactional
+    public void updateCards(String username, int roundNum, List<Integer> cards) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        playerRound.setCards(cards);
+
+        playerRoundRepository.save(playerRound);
+    }
+
+    @Transactional
+    public List<Integer> getPlayerCards(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        return playerRound.getCards();
+    }
+
+    @Transactional
+    public int getCountOfPlayerCards(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        return playerRound.getCards().size();
+    }
+
+    public int getHandCountOfPlayer(String username, int roundNum) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        return playerRound.getHandCount();
+    }
+
+    public void updateHandCount(String username, int roundNum, int handCount) {
+        Player player = playerRepository.findByUsername(username);
+        Round round =  roundRepository.findByRoundNumberAndRoom_RoomCode(roundNum, player.getRoom().getRoomCode());
+
+        PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(player.getUsername(), round.getRoundId());
+        playerRound.setHandCount(handCount);
+
+        playerRoundRepository.save(playerRound);
+    }
 }
