@@ -159,11 +159,19 @@ public class GameWebSocketController {
             predictionCount++;
 
             // update the prediction field in PlayerRound table for the player
-            playerRoundService.updatePrediction(message.getSenderUsername(), roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getPrediction());
+            playerRoundService.updatePrediction(
+                    message.getSenderUsername(),
+                    roundService.getRoundCountByRoomCode(message.getRoomCode()),
+                    message.getPrediction());
 
-            // if all players have made their predictions, return a message with type "PLAY_CARD" and set the usernameToPlayCard = playerList.get(dealerIndex+1 % playerList.size())
-            // else return a message with type "MAKE_PREDICTION" and set the usernameToEnterPrediction = playerList.get(indexof(usernameToEnterPrediction) + 1 % playerList.size())
-            if(predictionCount == roomRepository.findByRoomCode(message.getRoomCode()).orElseThrow(() -> new RuntimeException("Room not found")).getCapacity()) {
+            // if all players have made their predictions, return a message with type "PLAY_CARD"
+            // and set the usernameToPlayCard = playerList.get(dealerIndex+1 % playerList.size())
+            // else return a message with type "MAKE_PREDICTION" and set the
+            // usernameToEnterPrediction = playerList.get(indexof(usernameToEnterPrediction) + 1 % playerList.size())
+            if(predictionCount == roomRepository.findByRoomCode(
+                    message.getRoomCode())
+                    .orElseThrow(() -> new RuntimeException("Room not found"))
+                    .getCapacity()) {
                 predictionCount = 0;
                 List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
                 int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
@@ -197,8 +205,10 @@ public class GameWebSocketController {
             roundRepository.save(round);
 
             // if Round.cardsPlayed.size() == playerList.size()
-            // check who won the sub round and increment handCount of the player who won and clear Round.cardsPlayed and set usernameToPlayCard = winner of the sub round
-                // if playerRound[0].cards.size() == 0, return a message with type "ROUND_ENDED"
+            // check who won the sub round and increment handCount of the player
+            // who won and clear Round.cardsPlayed and
+            // set usernameToPlayCard = winner of the sub round
+            // if playerRound[0].cards.size() == 0, return a message with type "ROUND_ENDED"
             // else return a message with type "PLAY_CARD" and set the usernameToPlayCard = playerList.get(indexOf(usernameToPlayCard) + 1 % playerList.size())
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
             int trumpSuite = round.getTrumpSuite();
@@ -214,24 +224,34 @@ public class GameWebSocketController {
                 if(playerRound.getCards().isEmpty()) {
                     message.setType("ROUND_ENDED");
                 } else {
+                    // add the player index to the winner of the previous round
                     int indexOfUsernameToPlayCard = playerList.indexOf(message.getUsernameToPlayCard());
                     message.setType("PLAY_CARD");
-                    message.setUsernameToPlayCard(playerList.get((indexOfUsernameToPlayCard + 1) % playerList.size()));
+                    message.setUsernameToPlayCard(subRoundWinner.getPlayer().getUsername());
                 }
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {
             // set the status of room to -1
-            Room room = roomRepository.findByRoomCode(message.getRoomCode()).orElseThrow(() -> new RuntimeException("Room not found"));
+            Room room = roomRepository.findByRoomCode(
+                    message.getRoomCode())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
             room.setStatus(-1);
             roomRepository.save(room);
 
-            // calculate scores of each player using handCount and prediction fields in PlayerRound table
+            // calculate scores of each player using handCount
+            // and prediction fields in PlayerRound table
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
 
             // iterate through each player
             for(String username : playerList) {
-                PlayerRound playerRound = playerRoundRepository.findByPlayer_UsernameAndRound_RoundId(username, roundRepository.findByRoundNumberAndRoom_RoomCode(roundService.getRoundCountByRoomCode(message.getRoomCode()), message.getRoomCode()).getRoundId());
+                PlayerRound playerRound = playerRoundRepository
+                        .findByPlayer_UsernameAndRound_RoundId(username,
+                                roundRepository
+                                        .findByRoundNumberAndRoom_RoomCode(
+                                                roundService.getRoundCountByRoomCode(
+                                                        message.getRoomCode()),
+                                                message.getRoomCode()).getRoundId());
                 int prediction = playerRound.getPrediction();
                 int handCount = playerRound.getHandCount();
                 int score = 0;
