@@ -1,27 +1,3 @@
-//package com.cardgame.judgement.model;
-//
-//import com.fasterxml.jackson.annotation.JsonBackReference;
-//import jakarta.persistence.*;
-//import lombok.*;
-//
-//@Entity
-//@Data
-//@AllArgsConstructor
-//@NoArgsConstructor
-//public class Player {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long playerId;
-//
-//    @Column(unique = true, nullable = false)
-//    private String username;
-//
-//    @ManyToOne
-//    @JsonBackReference
-//    @JoinColumn(name = "room_id", nullable = false)
-//    private Room room;
-//}
-
 package com.cardgame.judgement.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -42,6 +18,10 @@ public class Player {
 
     @Column(unique = true, nullable = false)
     private String username;
+
+//    complete the flow
+    @Column
+    private boolean isRoomOwner;
 
     // Many-to-one relationship with Room
     @ManyToOne

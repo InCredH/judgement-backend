@@ -5,7 +5,10 @@ import com.cardgame.judgement.model.Room;
 import com.cardgame.judgement.repository.PlayerRepository;
 import com.cardgame.judgement.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PlayerService {
@@ -16,8 +19,9 @@ public class PlayerService {
     @Autowired
     private RoomRepository roomRepository;
 
-    public Player createPlayer(String username) {
+    public Player createPlayer(String username, boolean isOwner) {
         Player player = new Player();
+        player.setRoomOwner(isOwner);
         player.setUsername(username);
         playerRepository.save(player);
         return player;
@@ -45,5 +49,9 @@ public class PlayerService {
 
     public Player getPlayerById(String playerId) {
         return playerRepository.findById(playerId).orElseThrow(() -> new RuntimeException("Player not found"));
+    }
+
+    public List<Player> getPlayers(String roomCode){
+        return playerRepository.findByRoom_RoomCode(roomCode, Sort.by(Sort.Order.asc("username")));
     }
 }

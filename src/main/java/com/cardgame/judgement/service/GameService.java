@@ -36,42 +36,50 @@ public class GameService {
     private PlayerRoundService playerRoundService;
 
 
-    private String getSubRoundWinner(LinkedHashMap<String,Integer> cardsPlayed, int trumpSuite) {
+    private AbstractMap.SimpleEntry<String, Integer> getSubRoundWinner(LinkedHashMap<String, Integer> cardsPlayed, int trumpSuite) {
+        // Get the first entry to determine the initial suite
         Map.Entry<String, Integer> firstEntry = cardsPlayed.entrySet()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Map is empty"));
+
         int initialSuite = firstEntry.getValue() / 13;
         String winnerUsername = firstEntry.getKey();
-        int winnerCardValue = firstEntry.getValue() == trumpSuite ? firstEntry.getValue() % 13 * 10 : firstEntry.getValue() % 13;
+        int winnerCardValue = (firstEntry.getValue() / 13 == trumpSuite)
+                ? (firstEntry.getValue() % 13) * 10
+                : firstEntry.getValue() % 13;
 
         Iterator<Map.Entry<String, Integer>> iterator = cardsPlayed.entrySet().iterator();
 
-        // skip the first entry
-        if(iterator.hasNext()) {
+        // Skip the first entry
+        if (iterator.hasNext()) {
             iterator.next();
         }
 
-        // iterating from the second entry
-        while(iterator.hasNext()) {
+        // Iterate through the rest of the entries
+        while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
             int suite = entry.getValue() / 13;
+
             int cardValue;
-            if(suite == trumpSuite) {
-                cardValue = (entry.getValue() % 13) * 100;
-            } else if(suite == initialSuite) {
-                cardValue = entry.getValue() % 13;
+            if (suite == trumpSuite) {
+                cardValue = (entry.getValue() % 13) * 100; // High priority for trump cards
+            } else if (suite == initialSuite) {
+                cardValue = entry.getValue() % 13; // Normal priority for the same suite
             } else {
-                cardValue = (entry.getValue() % 13) * (-100);
+                cardValue = (entry.getValue() % 13) * (-100); // Low priority for other suites
             }
-            if(cardValue > winnerCardValue) {
+
+            // Update winner if a higher card value is found
+            if (cardValue > winnerCardValue) {
                 winnerUsername = entry.getKey();
                 winnerCardValue = cardValue;
             }
         }
 
-        return winnerUsername;
+        return new AbstractMap.SimpleEntry<>(winnerUsername, winnerCardValue);
     }
+
 
     private int generateRandomTrumpSuite() {
         List<Integer> suits = new ArrayList<>();
@@ -203,25 +211,27 @@ public class GameService {
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
             Round round = roundService.getRoundByRoundNumber(message.getRoomCode(), roundNum);
             int trumpSuite = round.getTrumpSuite();
-            String subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
+            AbstractMap.SimpleEntry<String, Integer> subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
             if(round.getCardsPlayed().size() == playerList.size()) {
-                int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername, roundNum);
+                int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername.getKey(), roundNum);
 
-                playerRoundService.updateHandCount(subRoundWinnerUsername, roundNum, handCountOfSubRoundWinner + 1);
+                playerRoundService.updateHandCount(subRoundWinnerUsername.getKey(), roundNum, handCountOfSubRoundWinner + 1);
 
                 roundService.clearCardsPlayedInRound(message.getRoomCode(), roundNum);
 
-                if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername, roundNum) == 0) {
+                if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername.getKey(), roundNum) == 0) {
                     message.setType("ROUND_ENDED");
                 } else {
                     message.setType("PLAY_CARD");
                     message.setSenderUsername(null);
-                    message.setUsernameToPlayCard(subRoundWinnerUsername);
+                    message.setPowerCard(subRoundWinnerUsername.getValue());
+                    message.setUsernameToPlayCard(subRoundWinnerUsername.getKey());
                 }
             } else {
                 message.setType("PLAY_CARD");
                 message.setSenderUsername(null);
-                message.setUsernameToPlayCard(subRoundWinnerUsername);
+                message.setPowerCard(subRoundWinnerUsername.getValue());
+                message.setUsernameToPlayCard(subRoundWinnerUsername.getKey());
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {
