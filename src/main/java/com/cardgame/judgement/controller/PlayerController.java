@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/players")
 public class PlayerController {
@@ -18,7 +20,7 @@ public class PlayerController {
     // Endpoint to create a new player
     @PostMapping("/create")
     public ResponseEntity<Player> createPlayer(@RequestBody CreatePlayerDTO createPlayerDTO) {
-        Player playerResponse = playerService.createPlayer(createPlayerDTO.getUsername());
+        Player playerResponse = playerService.createPlayer(createPlayerDTO.getUsername(), createPlayerDTO.getIsRoomOwner());
         return ResponseEntity.ok(playerResponse);
     }
 
@@ -34,5 +36,10 @@ public class PlayerController {
     public ResponseEntity<Player> getPlayerById(@PathVariable String playerId) {
         Player player = playerService.getPlayerById(playerId);
         return ResponseEntity.ok(player);
+    }
+
+    @GetMapping("/all")
+    public List<Player> getAllPlayers(@RequestParam String roomCode){
+        return playerService.getPlayers(roomCode);
     }
 }
