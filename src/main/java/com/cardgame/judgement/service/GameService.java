@@ -211,27 +211,27 @@ public class GameService {
             List<String> playerList = roomService.getAllPlayerUsernames(message.getRoomCode());
             Round round = roundService.getRoundByRoundNumber(message.getRoomCode(), roundNum);
             int trumpSuite = round.getTrumpSuite();
-            AbstractMap.SimpleEntry<String, Integer> subRoundWinnerUsername = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
+            AbstractMap.SimpleEntry<String, Integer> subRoundWinner = getSubRoundWinner(round.getCardsPlayed(), trumpSuite);
             if(round.getCardsPlayed().size() == playerList.size()) {
-                int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinnerUsername.getKey(), roundNum);
+                int handCountOfSubRoundWinner = playerRoundService.getHandCountOfPlayer(subRoundWinner.getKey(), roundNum);
 
-                playerRoundService.updateHandCount(subRoundWinnerUsername.getKey(), roundNum, handCountOfSubRoundWinner + 1);
+                playerRoundService.updateHandCount(subRoundWinner.getKey(), roundNum, handCountOfSubRoundWinner + 1);
 
                 roundService.clearCardsPlayedInRound(message.getRoomCode(), roundNum);
 
-                if(playerRoundService.getCountOfPlayerCards(subRoundWinnerUsername.getKey(), roundNum) == 0) {
+                if(playerRoundService.getCountOfPlayerCards(subRoundWinner.getKey(), roundNum) == 0) {
                     message.setType("ROUND_ENDED");
                 } else {
                     message.setType("PLAY_CARD");
                     message.setSenderUsername(null);
-                    message.setPowerCard(subRoundWinnerUsername.getValue());
-                    message.setUsernameToPlayCard(subRoundWinnerUsername.getKey());
+                    message.setPowerCard(subRoundWinner.getValue());
+                    message.setUsernameToPlayCard(subRoundWinner.getKey());
                 }
             } else {
                 message.setType("PLAY_CARD");
                 message.setSenderUsername(null);
-                message.setPowerCard(subRoundWinnerUsername.getValue());
-                message.setUsernameToPlayCard(subRoundWinnerUsername.getKey());
+                message.setPowerCard(subRoundWinner.getValue());
+                message.setUsernameToPlayCard(subRoundWinner.getKey());
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {

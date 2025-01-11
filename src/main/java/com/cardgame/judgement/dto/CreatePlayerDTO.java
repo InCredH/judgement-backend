@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class CreatePlayerDTO {
     String username;
-    boolean isRoomOwner;
+    Boolean isRoomOwner;
 }

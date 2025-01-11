@@ -20,7 +20,7 @@ public class PlayerController {
     // Endpoint to create a new player
     @PostMapping("/create")
     public ResponseEntity<Player> createPlayer(@RequestBody CreatePlayerDTO createPlayerDTO) {
-        Player playerResponse = playerService.createPlayer(createPlayerDTO.getUsername(), createPlayerDTO.isRoomOwner());
+        Player playerResponse = playerService.createPlayer(createPlayerDTO.getUsername(), createPlayerDTO.getIsRoomOwner());
         return ResponseEntity.ok(playerResponse);
     }
 
@@ -38,7 +38,7 @@ public class PlayerController {
         return ResponseEntity.ok(player);
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public List<Player> getAllPlayers(@RequestParam String roomCode){
         return playerService.getPlayers(roomCode);
     }
