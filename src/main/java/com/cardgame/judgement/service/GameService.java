@@ -159,7 +159,7 @@ public class GameService {
 
             // return a message with type "MAKE_PREDICTION" and set the usernameToEnterPrediction = playerList.get(dealerIndex + 1 % playerList.size())
             message.setType("MAKE_PREDICTION");
-            message.setUsernameToEnterPrediction(playerList.get(dealerIndex));
+            message.setUsernameToEnterPrediction(playerList.get((dealerIndex+1)%playerList.size()));
             message.setSenderUsername(null);
         }
         else if(message.getType().equals("PREDICTION_MADE")) {
@@ -229,6 +229,8 @@ public class GameService {
                 }
             } else {
                 message.setType("PLAY_CARD");
+                String usernameCardPlayed = message.getSenderUsername();
+                message.setUsernameToPlayCard(playerList.get((playerList.indexOf(usernameCardPlayed) + 1) % playerList.size()));
                 message.setSenderUsername(null);
                 message.setPowerCard(subRoundWinner.getValue());
                 message.setUsernameToPlayCard(subRoundWinner.getKey());
