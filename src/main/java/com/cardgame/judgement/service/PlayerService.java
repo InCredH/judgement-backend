@@ -47,6 +47,23 @@ public class PlayerService {
         return existingPlayer;
     }
 
+    public Player quitRoom(String playerName, String roomId) {
+        Room room = roomRepository.findByRoomCode(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        Player existingPlayer = playerRepository.findByUsername(playerName);
+        if (existingPlayer == null) {
+            throw new RuntimeException("Player not found");
+        }
+
+//        room.getPlayers().add(existingPlayer);
+        existingPlayer.setRoom(null);
+        roomRepository.save(room);
+        playerRepository.save(existingPlayer);
+
+        return existingPlayer;
+    }
+
     public Player getPlayerById(String playerId) {
         return playerRepository.findById(playerId).orElseThrow(() -> new RuntimeException("Player not found"));
     }

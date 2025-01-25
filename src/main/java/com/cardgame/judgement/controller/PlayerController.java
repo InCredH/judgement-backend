@@ -31,6 +31,13 @@ public class PlayerController {
         return ResponseEntity.ok(player);
     }
 
+    // Endpoint to remove a player to a room
+    @PutMapping("/quit")
+    public ResponseEntity<Player> quitRoom(@RequestBody PlayerJoinRoomDTO playerJoinRoomDTO) {
+        Player player = playerService.joinRoom(playerJoinRoomDTO.getPlayerUsername(), playerJoinRoomDTO.getRoomCode());
+        return ResponseEntity.ok(player);
+    }
+
     // Endpoint to get player details by playerId
     @GetMapping("/{playerId}")
     public ResponseEntity<Player> getPlayerById(@PathVariable String playerId) {
