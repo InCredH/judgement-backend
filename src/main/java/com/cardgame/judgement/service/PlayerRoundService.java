@@ -97,4 +97,8 @@ public class PlayerRoundService {
 
         playerRoundRepository.save(playerRound);
     }
+
+    public void dropAllRecords() {
+        playerRoundRepository.deleteAll();
+    }
 }
