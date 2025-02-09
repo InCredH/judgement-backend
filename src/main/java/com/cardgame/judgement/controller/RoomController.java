@@ -1,5 +1,6 @@
 package com.cardgame.judgement.controller;
 
+import com.cardgame.judgement.dto.UpdateRoomConfigDTO;
 import com.cardgame.judgement.model.Room;
 import com.cardgame.judgement.model.Player;
 import com.cardgame.judgement.service.RoomService;
@@ -25,8 +26,8 @@ public class RoomController {
 
     // Endpoint to update room details
     @PutMapping("/{roomCode}")
-    public ResponseEntity<Room> updateRoom(@PathVariable String roomCode, @RequestBody Room room) {
-        Room updatedRoom = roomService.updateRoom(roomCode, room);
+    public ResponseEntity<Room> updateRoom(@PathVariable String roomCode, @RequestBody UpdateRoomConfigDTO updateRoomConfigDTO) {
+        Room updatedRoom = roomService.updateRoom(roomCode, updateRoomConfigDTO.getCapacity(), updateRoomConfigDTO.getTotalRounds());
         return ResponseEntity.ok(updatedRoom);
     }
 

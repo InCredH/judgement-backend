@@ -12,4 +12,6 @@ public interface PlayerRepository extends JpaRepository<Player, String> {
     Player findByUsername(String name);
 
     List<Player> findByRoom_RoomCode(String roomCode, Sort sort);
+
+    boolean existsByUsername(String username);
 }

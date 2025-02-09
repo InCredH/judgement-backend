@@ -192,9 +192,9 @@ public class GameService {
             }
         }
         else if (message.getType().equals("CARD_PLAYED")) {
-            // remove the card played by the player from PlayerRound.cards
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
 
+            // remove the card played by the player from PlayerRound.cards
             List<Integer> playerCards = playerRoundService.getPlayerCards(message.getSenderUsername(), roundNum);
             playerCards.remove(Integer.valueOf(message.getCard()));
             playerRoundService.updateCards(message.getSenderUsername(), roundNum, playerCards);
@@ -220,7 +220,7 @@ public class GameService {
                 roundService.clearCardsPlayedInRound(message.getRoomCode(), roundNum);
 
                 if(playerRoundService.getCountOfPlayerCards(subRoundWinner.getKey(), roundNum) == 0) {
-                    message.setType("ROUND_ENDED");
+                    message.setType("END_ROUND");
                 } else {
                     message.setType("PLAY_CARD");
                     message.setSenderUsername(null);
@@ -233,7 +233,6 @@ public class GameService {
                 message.setUsernameToPlayCard(playerList.get((playerList.indexOf(usernameCardPlayed) + 1) % playerList.size()));
                 message.setSenderUsername(null);
                 message.setPowerCard(subRoundWinner.getValue());
-                message.setUsernameToPlayCard(subRoundWinner.getKey());
             }
         }
         else if (message.getType().equals("ROUND_ENDED")) {
@@ -254,9 +253,9 @@ public class GameService {
                 if(prediction == handCount) {
                     score = 10 + prediction;
                 } else if(prediction > handCount) {
-                    score = prediction;
-                } else {
                     score = -prediction;
+                } else {
+                    score = handCount;
                 }
                 playerRound.setScore(score);
                 playerRoundRepository.save(playerRound);
@@ -268,7 +267,7 @@ public class GameService {
             if(roundNum == room.getTotalRounds()) {
                 message.setType("GAME_ENDED");
             } else {
-                message.setType("ROUND_STARTED");
+                message.setType("START_ROUND");
             }
         }
         else if (message.getType().equals("GAME_RESTARTED")) {
@@ -281,6 +280,10 @@ public class GameService {
 
             // return a message with type "ROUND_STARTED"
             message.setType("ROUND_STARTED");
+        }
+        else if(message.getType().equals("DROP_DB")) {
+            playerRoundService.dropAllRecords();
+            roundService.dropAllRecords();
         }
         else {
             message.setType("INVALID_MESSAGE");

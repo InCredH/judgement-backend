@@ -54,4 +54,8 @@ public class PlayerService {
     public List<Player> getPlayers(String roomCode){
         return playerRepository.findByRoom_RoomCode(roomCode, Sort.by(Sort.Order.asc("username")));
     }
+
+    public boolean isUsernameTaken(String username) {
+        return playerRepository.existsByUsername(username);
+    }
 }

@@ -43,10 +43,10 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public Room updateRoom(String roomCode, Room room) {
+    public Room updateRoom(String roomCode, int capacity, int totalRounds) {
         Room existingRoom = getRoomByRoomCode(roomCode);
-        existingRoom.setCapacity(room.getCapacity());
-        existingRoom.setTotalRounds(room.getTotalRounds());
+        existingRoom.setCapacity(capacity);
+        existingRoom.setTotalRounds(totalRounds);
         return roomRepository.save(existingRoom);
     }
 

@@ -30,9 +30,9 @@ public class PlayerRound {
     @JsonBackReference
     private Round round;
 
-    private int prediction;
+    private Integer prediction;  // set to Integer so default value will be null
 
-    private int score;
+    private Integer score;  // set to Integer so default value will be null
 
     private int handCount;
 

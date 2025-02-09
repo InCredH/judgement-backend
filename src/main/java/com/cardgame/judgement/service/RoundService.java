@@ -52,4 +52,8 @@ public class RoundService {
         round.setCardsPlayed(cardsPlayed);
         roundRepository.save(round);
     }
+
+    public void dropAllRecords() {
+        roundRepository.deleteAll();
+    }
 }
