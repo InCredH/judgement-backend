@@ -15,6 +15,7 @@ public class GameMessage {
     private boolean isLastPlayerToPlay; // Flag to indicate if the player is the last one to play the card in a sub round
     private String roomCode; // Room code for targeting specific rooms
     private int powerCard; // strongest card in a round
+    private int roundNum; // current round number
 }
 
 /*

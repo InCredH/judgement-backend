@@ -192,9 +192,9 @@ public class GameService {
             }
         }
         else if (message.getType().equals("CARD_PLAYED")) {
-            // remove the card played by the player from PlayerRound.cards
             int roundNum = roundService.getRoundCountByRoomCode(message.getRoomCode());
 
+            // remove the card played by the player from PlayerRound.cards
             List<Integer> playerCards = playerRoundService.getPlayerCards(message.getSenderUsername(), roundNum);
             playerCards.remove(Integer.valueOf(message.getCard()));
             playerRoundService.updateCards(message.getSenderUsername(), roundNum, playerCards);
